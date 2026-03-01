@@ -1,13 +1,11 @@
 package org.toramir1.deos3_parkour;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.server.ServerScoreboard;
-import net.minecraft.world.scores.Objective;
+import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -17,6 +15,11 @@ import org.slf4j.Logger;
 import org.toramir1.deos3_parkour.service.RunService;
 import org.toramir1.deos3_parkour.service.ScoreService;
 import org.toramir1.deos3_parkour.service.ScoreboardService;
+
+import java.io.IOException;
+
+import static org.toramir1.deos3_parkour.persistance.PlayerScoreSave.readPlayerScores;
+import static org.toramir1.deos3_parkour.persistance.PlayerScoreSave.savePlayerScores;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(Deos3Parkour.MODID)
@@ -31,8 +34,6 @@ public class Deos3Parkour {
     public Deos3Parkour(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
         NeoForge.EVENT_BUS.register(this);
-
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -46,16 +47,15 @@ public class Deos3Parkour {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
 
-        SCOREBOARD_SERVICE.initScoreboard(event.getServer());
+        MinecraftServer server = event.getServer();
+        SCORE_SERVICE.setScore(readPlayerScores(server));
+        SCOREBOARD_SERVICE.initScoreboard(server);
     }
 
     @SubscribeEvent
-    public void serverStopEvent(ServerStoppingEvent event) {
-        ServerScoreboard scoreboard = event.getServer().getScoreboard();
-        Objective objective = scoreboard.getObjective("parkourScores");
-        if (objective != null) {
-            scoreboard.removeObjective(objective);
-        }
+    public void serverStopEvent(ServerStoppingEvent event) throws IOException {
+        MinecraftServer server = event.getServer();
+        savePlayerScores(server);
     }
 
     @SubscribeEvent

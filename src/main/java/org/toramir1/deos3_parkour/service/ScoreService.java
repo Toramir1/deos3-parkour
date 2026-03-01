@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class ScoreService {
-    private final List<PlayerScore> scores = new ArrayList<>();
+    private List<PlayerScore> scores = new ArrayList<>();
 
     public ScoreService() {
     }
@@ -22,6 +22,10 @@ public class ScoreService {
         } else {
             scores.add(playerScore);
         }
+    }
+
+    public void setScore(List<PlayerScore> scores) {
+        this.scores = scores;
     }
 
     public List<PlayerScore> getScores() {

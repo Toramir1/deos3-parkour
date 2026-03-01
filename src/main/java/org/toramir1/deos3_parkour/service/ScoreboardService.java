@@ -31,11 +31,12 @@ public class ScoreboardService {
         scoreboard.addObjective(
                 OBJECTIVE_NAME,
                 ObjectiveCriteria.DUMMY,
-                Component.literal("Best Times"),
+                Component.literal("Leaderboard"),
                 ObjectiveCriteria.RenderType.INTEGER,
                 true,
                 null
         );
+        updateScoreboard();
     }
 
     public void updateScoreboard() {
@@ -54,6 +55,6 @@ public class ScoreboardService {
     }
 
     private String millisToMinutesAndSeconds(long millis) {
-        return DurationFormatUtils.formatDuration(millis, "mm:ss");
+        return DurationFormatUtils.formatDuration(millis, "mm:ss:SSS");
     }
 }
