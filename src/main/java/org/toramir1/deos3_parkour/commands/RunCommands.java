@@ -1,4 +1,4 @@
-package org.toramir1.deos3_parkour;
+package org.toramir1.deos3_parkour.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
@@ -8,10 +8,11 @@ import net.minecraft.server.level.ServerPlayer;
 
 import static org.toramir1.deos3_parkour.Deos3Parkour.RUN_SERVICE;
 
-public class ModCommands {
+public class RunCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("run")
+                    .requires(req -> req.hasPermission(4))
                         .then(Commands.literal("start")
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .executes(context -> {
@@ -41,15 +42,6 @@ public class ModCommands {
                         )
 
                         .then(Commands.literal("checkpoint")
-                                .then(Commands.literal("add")
-                                        .then(Commands.argument("player", EntityArgument.player())
-                                                .executes(context -> {
-                                                    ServerPlayer player = EntityArgument.getPlayer(context, "player");
-                                                    RUN_SERVICE.addCheckpointToRun(player);
-                                                    return 1;
-                                                })
-                                        )
-                                )
                                 .then(Commands.literal("teleport")
                                         .then(Commands.argument("player", EntityArgument.player())
                                                 .executes(context -> {

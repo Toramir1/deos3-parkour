@@ -1,0 +1,5 @@
+{
+  "notification.run.start": "Neuer Anlauf gestartet",
+  "notification.run.end": "Anlauf beendet",
+  "notification.run.high_score": "Neuer High Score"
+}

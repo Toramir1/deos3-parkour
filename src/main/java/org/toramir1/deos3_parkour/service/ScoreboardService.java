@@ -9,12 +9,13 @@ import net.minecraft.world.scores.ScoreAccess;
 import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.toramir1.deos3_parkour.PlayerScore;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static org.toramir1.deos3_parkour.Deos3Parkour.SCORE_SERVICE;
+import static org.toramir1.deos3_parkour.service.TimeUtils.getTimeWithPlayerNameAsText;
 
 public class ScoreboardService {
 
@@ -22,8 +23,7 @@ public class ScoreboardService {
 
     private Scoreboard scoreboard;
 
-    public ScoreboardService() {
-    }
+    public ScoreboardService() {}
 
     public void initScoreboard(MinecraftServer server) {
         scoreboard = server.getScoreboard();
@@ -41,20 +41,17 @@ public class ScoreboardService {
 
     public void updateScoreboard() {
         List<PlayerScore> scores = SCORE_SERVICE.getScores();
+        List<PlayerScore> sortedScores = scores.stream().sorted(Comparator.comparingLong(PlayerScore::getScore).reversed()).limit(10).toList();
         Objective objective = scoreboard.getObjective(OBJECTIVE_NAME);
 
         objective.setNumberFormat(BlankFormat.INSTANCE);
 
-        for (PlayerScore playerScore : scores) {
+        for (PlayerScore playerScore : sortedScores) {
             String playerName = playerScore.getPlayerName();
-            long score = playerScore.getScore();
             ScoreAccess scoreAccess = scoreboard.getOrCreatePlayerScore(ScoreHolder.forNameOnly(playerName), objective);
-            scoreAccess.display(Component.literal(playerName + "  " + millisToMinutesAndSeconds(score)));
+            scoreAccess.set(sortedScores.size() - sortedScores.indexOf(playerScore));
+            scoreAccess.display(Component.literal(TimeUtils.getTimeWithPlayerNameAsText(playerScore)));
         }
         scoreboard.setDisplayObjective(DisplaySlot.SIDEBAR, objective);
-    }
-
-    private String millisToMinutesAndSeconds(long millis) {
-        return DurationFormatUtils.formatDuration(millis, "mm:ss:SSS");
     }
 }
